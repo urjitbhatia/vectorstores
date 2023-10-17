@@ -1,5 +1,7 @@
 # vectorstores
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/urjitbhatia/vectorstores.svg)](https://pkg.go.dev/github.com/urjitbhatia/vectorstores)
+
 This repo is a collection of clients for various vector stores aligned with the `VectorStores` interface
 defined in https://github.com/tmc/langchaingo. This repo allows for testing the store client implementations.
 
