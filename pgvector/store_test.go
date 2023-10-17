@@ -2,7 +2,6 @@ package pgvector_test
 
 import (
 	"context"
-	"database/sql"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/tmc/langchaingo/schema"
@@ -28,9 +27,6 @@ func (t testEmbedder) EmbedQuery(_ context.Context, text string) ([]float32, err
 var _ = Describe("pgvector store", Ordered, Label("pgvector"), func() {
 
 	var store vectorstores.VectorStore
-	// var testTransaction testTx
-	var testTransaction *sql.Tx
-
 	bananaDoc := schema.Document{PageContent: "banana", Metadata: map[string]any{"foo": "bar"}}
 	monkeyDoc := schema.Document{PageContent: "monkey", Metadata: nil}
 
@@ -51,8 +47,7 @@ var _ = Describe("pgvector store", Ordered, Label("pgvector"), func() {
 	It("stores documents", func() {
 		Label("pgvector")
 		docs := []schema.Document{bananaDoc, monkeyDoc}
-		ctx := context.WithValue(context.Background(), "dbtx", testTransaction)
-		err := store.AddDocuments(ctx, docs)
+		err := store.AddDocuments(context.Background(), docs)
 		Expect(err).ToNot(HaveOccurred())
 	})
 
