@@ -1,0 +1,43 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+
+    services:
+      chroma:
+        image: ghcr.io/chroma-core/chroma:0.4.14
+        env:
+          ALLOW_RESET: TRUE
+        ports:
+          - 8000:8000
+      pgvector:
+        image: ankane/pgvector:0.5.1
+        options: "postgres -c log_statement=all -c log_destination=stderr"
+        env:
+          ALLOW_RESET: TRUE
+        ports:
+          - 5432:5432
