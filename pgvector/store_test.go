@@ -37,6 +37,7 @@ var _ = Describe("pgvector store", Ordered, Label("pgvector"), func() {
 			pgvector.WithCollection("unittest"),
 			pgvector.WithEndpoint("localhost", 5432),
 			pgvector.WithDBName("test"),
+			pgvector.WithSSLMode("disable"),
 			pgvector.WithEmbedder(testEmbedder{}),
 		)
 		Expect(err).ToNot(HaveOccurred())

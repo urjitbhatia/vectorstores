@@ -6,16 +6,17 @@ import (
 )
 
 type pgvOptions struct {
-	DB             *sql.DB
-	Username       string
-	Password       string
-	DBName         string
-	SSLMode        string
-	EmbeddingModel EmbeddingModel
-	Embedder       embeddings.Embedder
-	TableName      string
-	Host           string
-	Port           int
+	DB              *sql.DB
+	Username        string
+	Password        string
+	DBName          string
+	SSLMode         string
+	EmbeddingModel  EmbeddingModel
+	Embedder        embeddings.Embedder
+	TableName       string
+	Host            string
+	Port            int
+	CreateExtension bool
 }
 type Options func(o *pgvOptions)
 
@@ -24,6 +25,15 @@ type Options func(o *pgvOptions)
 func WithClient(sqlClient *sql.DB) Options {
 	return func(o *pgvOptions) {
 		o.DB = sqlClient
+	}
+}
+
+// WithCreateExtension If set, will attempt to enable the PGVECTOR extension in the database.
+// The user should have the appropriate permissions. Otherwise, provision the database with pgvector
+// pre-enabled
+func WithCreateExtension() Options {
+	return func(o *pgvOptions) {
+		o.CreateExtension = true
 	}
 }
 

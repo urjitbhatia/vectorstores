@@ -36,8 +36,20 @@ func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
 	}
 
 	// verify or enable vector extensions
-	if _, err := o.DB.Exec("CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
+	if o.CreateExtension {
+		if _, err := o.DB.Exec("CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
+			return nil, err
+		}
+	}
+	// verify that vector extension is enabled
+	ext := o.DB.QueryRow("SELECT COUNT(*) FROM pg_extension where extname = 'vector'")
+	var count int
+	err := ext.Scan(&count)
+	if err != nil {
 		return nil, err
+	}
+	if count == 0 {
+		return nil, fmt.Errorf("vector extension is not enabled, cannot continue")
 	}
 
 	// create collection
