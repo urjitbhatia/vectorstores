@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
-	"vectorstores/pgvector"
+	"github.com/urjitbhatia/vectorstores/pgvector"
 )
 
 type testEmbedder struct{}

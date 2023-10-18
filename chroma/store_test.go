@@ -2,7 +2,7 @@ package chroma_test
 
 import (
 	"context"
-	"vectorstores/chroma"
+	"github.com/urjitbhatia/vectorstores/chroma"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

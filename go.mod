@@ -1,4 +1,4 @@
-module vectorstores
+module github.com/urjitbhatia/vectorstores
 
 go 1.21
 

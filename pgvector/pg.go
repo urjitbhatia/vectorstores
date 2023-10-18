@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
-	store "vectorstores"
+	store "github.com/urjitbhatia/vectorstores"
 )
 
 // Store is a postgres based implementation of a vector store
