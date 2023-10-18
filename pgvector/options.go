@@ -19,12 +19,15 @@ type pgvOptions struct {
 }
 type Options func(o *pgvOptions)
 
+// WithClient sets an existing sql client - useful for proxying or testing or supplying a pre-made
+// sql client connection with customizations
 func WithClient(sqlClient *sql.DB) Options {
 	return func(o *pgvOptions) {
 		o.DB = sqlClient
 	}
 }
 
+// WithCreds sets the user creds for postgres
 func WithCreds(user, pwd string) Options {
 	return func(o *pgvOptions) {
 		o.Username = user
@@ -32,6 +35,7 @@ func WithCreds(user, pwd string) Options {
 	}
 }
 
+// WithEndpoint sets the host and port for the postgres instance to connect with
 func WithEndpoint(host string, port int) Options {
 	return func(o *pgvOptions) {
 		o.Host = host
@@ -39,24 +43,28 @@ func WithEndpoint(host string, port int) Options {
 	}
 }
 
+// WithEmbedder sets the embeddings provider
 func WithEmbedder(e embeddings.Embedder) Options {
 	return func(o *pgvOptions) {
 		o.Embedder = e
 	}
 }
 
+// WithDBName sets the db name to use with postgres
 func WithDBName(dbname string) Options {
 	return func(o *pgvOptions) {
 		o.DBName = dbname
 	}
 }
 
+// WithCollection sets the name of the collection (table within the postgres database)
 func WithCollection(name string) Options {
 	return func(o *pgvOptions) {
 		o.TableName = name
 	}
 }
 
+// WithSSLMode only "require" (default), "verify-full", "verify-ca", and "disable" supported
 func WithSSLMode(mode string) Options {
 	return func(o *pgvOptions) {
 		o.SSLMode = mode
@@ -75,6 +83,7 @@ var VectorDimensionsByEmbeddingModel = map[EmbeddingModel]int{
 	EmbeddingOpenAI_ada_002: 1536,
 }
 
+// WithEmbeddingMode sets the embeddings mode. Currently, only OpenAI ADA_002 is supported.
 func WithEmbeddingMode(e EmbeddingModel) Options {
 	return func(o *pgvOptions) {
 		o.EmbeddingModel = e
@@ -85,7 +94,7 @@ func applyOptions(opts ...Options) pgvOptions {
 	o := pgvOptions{
 		Host:    "localhost",
 		Port:    5432,
-		SSLMode: "disable",
+		SSLMode: "require",
 	}
 	for _, fn := range opts {
 		fn(&o)

@@ -16,6 +16,63 @@ type Store struct {
 	pgvOptions
 }
 
+func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
+	o := applyOptions(opts...)
+	// checks
+	if o.TableName == "" {
+		return nil, fmt.Errorf("collection name needs to be set")
+	}
+
+	if o.DB == nil {
+		connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+			o.Host, o.Port,
+			o.Username, o.Password,
+			o.DBName, o.SSLMode)
+		db, err := sql.Open("postgres", connStr)
+		if err != nil {
+			return nil, fmt.Errorf("unable to connect to pg store. Err: %w", err)
+		}
+		o.DB = db
+	}
+
+	// verify or enable vector extensions
+	if _, err := o.DB.Exec("CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
+		return nil, err
+	}
+
+	// create collection
+	vectorDims := VectorDimensionsByEmbeddingModel[o.EmbeddingModel]
+	collCreateQuery := fmt.Sprintf(
+		`
+		CREATE TABLE IF NOT EXISTS %s 
+		(id serial PRIMARY KEY, embedding vector(%d), metadata JSON, content text)
+		`,
+		o.TableName, vectorDims)
+	if _, err := o.DB.Exec(collCreateQuery); err != nil {
+		return nil, err
+	}
+
+	// create index
+	// Same as chroma
+	// see: https://github.com/chroma-core/chroma/blob/0d675094035cf87904c77404f0a94a3137a6bc27/chromadb/segment/impl/vector/hnsw_params.py#L56-L59
+	idxQuery := fmt.Sprintf(
+		`CREATE INDEX IF NOT EXISTS %s_hsnwidx ON %s USING 
+				hnsw (embedding vector_l2_ops)
+				WITH (m = %d, ef_construction = %d);`,
+		o.TableName,
+		o.TableName,
+		16,
+		100,
+	)
+	if _, err := o.DB.Exec(idxQuery); err != nil {
+		return nil, err
+	}
+
+	return &Store{
+		pgvOptions: o,
+	}, nil
+}
+
 func (p *Store) AddDocuments(ctx context.Context, documents []schema.Document, option ...vectorstores.Option) error {
 	var contents []string
 	for _, doc := range documents {
@@ -95,63 +152,6 @@ func (p *Store) SimilaritySearch(ctx context.Context, query string, numDocuments
 	}
 
 	return docs, txn.Commit()
-}
-
-func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
-	o := applyOptions(opts...)
-	// checks
-	if o.TableName == "" {
-		return nil, fmt.Errorf("collection name needs to be set")
-	}
-
-	if o.DB == nil {
-		connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-			o.Host, o.Port,
-			o.Username, o.Password,
-			o.DBName, o.SSLMode)
-		db, err := sql.Open("postgres", connStr)
-		if err != nil {
-			return nil, fmt.Errorf("unable to connect to pg store. Err: %w", err)
-		}
-		o.DB = db
-	}
-
-	// verify or enable vector extensions
-	if _, err := o.DB.Exec("CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
-		return nil, err
-	}
-
-	// create collection
-	vectorDims := VectorDimensionsByEmbeddingModel[o.EmbeddingModel]
-	collCreateQuery := fmt.Sprintf(
-		`
-		CREATE TABLE IF NOT EXISTS %s 
-		(id serial PRIMARY KEY, embedding vector(%d), metadata JSON, content text)
-		`,
-		o.TableName, vectorDims)
-	if _, err := o.DB.Exec(collCreateQuery); err != nil {
-		return nil, err
-	}
-
-	// create index
-	// Same as chroma
-	// see: https://github.com/chroma-core/chroma/blob/0d675094035cf87904c77404f0a94a3137a6bc27/chromadb/segment/impl/vector/hnsw_params.py#L56-L59
-	idxQuery := fmt.Sprintf(
-		`CREATE INDEX IF NOT EXISTS %s_hsnwidx ON %s USING 
-				hnsw (embedding vector_l2_ops)
-				WITH (m = %d, ef_construction = %d);`,
-		o.TableName,
-		o.TableName,
-		16,
-		100,
-	)
-	if _, err := o.DB.Exec(idxQuery); err != nil {
-		return nil, err
-	}
-
-	return &Store{
-		pgvOptions: o,
-	}, nil
 }
 
 func (p *Store) CollectionSize() (int, error) {
