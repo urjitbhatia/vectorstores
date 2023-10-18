@@ -52,8 +52,7 @@ var _ = Describe("pgvector store", Ordered, Label("pgvector"), func() {
 	})
 
 	XIt("fetch documents by similarity", func() {
-		ctx := context.WithValue(context.Background(), "dbtx", testTransaction)
-		docs, err := store.SimilaritySearch(ctx, "bandana", 1)
+		docs, err := store.SimilaritySearch(context.Background(), "bandana", 1)
 		Expect(err).ToNot(HaveOccurred())
 
 		Expect(len(docs)).To(Equal(1))
