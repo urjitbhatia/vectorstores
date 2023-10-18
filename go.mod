@@ -8,7 +8,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.28.0
 	github.com/tmc/langchaingo v0.0.0-20230929160525-e16b77704b8d
-	github.com/urjitbhatia/gochroma v1.4.0
+	github.com/urjitbhatia/gochroma v1.4.1
 )
 
 require (
@@ -27,5 +27,3 @@ require (
 	golang.org/x/tools v0.12.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/urjitbhatia/gochroma => ../gochromadb

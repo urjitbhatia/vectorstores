@@ -46,8 +46,8 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/tmc/langchaingo v0.0.0-20230929160525-e16b77704b8d h1:i4+wYULVM2/3Yb/aDE7Z4s2v7vqtQERQWh5lopBEuig=
 github.com/tmc/langchaingo v0.0.0-20230929160525-e16b77704b8d/go.mod h1:R+a8fqt6nmKyYj7KSpr/m9oxqE6OJLbLyO9pxeHpjLU=
-github.com/urjitbhatia/gochroma v1.4.0 h1:xWAhThj1aUyJG+WmFeg5NJmpaWQp5q9bgwAj/AWo4oo=
-github.com/urjitbhatia/gochroma v1.4.0/go.mod h1:j0g+K21DEQD5a3oyqHdZOhwN9GX3JDQnWCc/wo1FpCM=
+github.com/urjitbhatia/gochroma v1.4.1 h1:28VooX5umRaDjbm67lnqRmKIQxytZbnMseMdGJ/0TzM=
+github.com/urjitbhatia/gochroma v1.4.1/go.mod h1:j0g+K21DEQD5a3oyqHdZOhwN9GX3JDQnWCc/wo1FpCM=
 golang.org/x/mod v0.12.0 h1:rmsUpXtvNzj340zd98LZ4KntptpfRHwpFOHG188oHXc=
 golang.org/x/mod v0.12.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/net v0.14.0 h1:BONx9s002vGdD9umnlX1Po8vOZmrgH34qlHcD1MfK14=
