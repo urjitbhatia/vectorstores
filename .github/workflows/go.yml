@@ -36,7 +36,12 @@ jobs:
           - 8000:8000
       pgvector:
         image: ankane/pgvector:v0.5.1
-        options: "postgres -c log_statement=all -c log_destination=stderr"
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         env:
           POSTGRES_PASSWORD: test
           POSTGRES_USER: test
