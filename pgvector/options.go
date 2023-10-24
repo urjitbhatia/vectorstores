@@ -2,6 +2,7 @@ package pgvector
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/tmc/langchaingo/embeddings"
 )
 
@@ -100,7 +101,7 @@ func WithEmbeddingMode(e EmbeddingModel) Options {
 	}
 }
 
-func applyOptions(opts ...Options) pgvOptions {
+func applyOptions(opts ...Options) (pgvOptions, error) {
 	o := pgvOptions{
 		Host:    "localhost",
 		Port:    5432,
@@ -109,5 +110,11 @@ func applyOptions(opts ...Options) pgvOptions {
 	for _, fn := range opts {
 		fn(&o)
 	}
-	return o
+	if o.Embedder == nil {
+		return o, fmt.Errorf("cannot use pg store without an embedder")
+	}
+	if o.TableName == "" {
+		return o, fmt.Errorf("collection name needs to be set")
+	}
+	return o, nil
 }

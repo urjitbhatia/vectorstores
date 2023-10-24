@@ -17,10 +17,9 @@ type Store struct {
 }
 
 func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
-	o := applyOptions(opts...)
-	// checks
-	if o.TableName == "" {
-		return nil, fmt.Errorf("collection name needs to be set")
+	o, err := applyOptions(opts...)
+	if err != nil {
+		return nil, err
 	}
 
 	if o.DB == nil {
@@ -38,15 +37,16 @@ func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
 	// verify or enable vector extensions
 	if o.CreateExtension {
 		if _, err := o.DB.Exec("CREATE EXTENSION IF NOT EXISTS vector"); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to create vector extension: %w", err)
 		}
 	}
+
 	// verify that vector extension is enabled
 	ext := o.DB.QueryRow("SELECT COUNT(*) FROM pg_extension where extname = 'vector'")
 	var count int
-	err := ext.Scan(&count)
+	err = ext.Scan(&count)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to verify vector extension: %w", err)
 	}
 	if count == 0 {
 		return nil, fmt.Errorf("vector extension is not enabled, cannot continue")
@@ -55,13 +55,12 @@ func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
 	// create collection
 	vectorDims := VectorDimensionsByEmbeddingModel[o.EmbeddingModel]
 	collCreateQuery := fmt.Sprintf(
-		`
-		CREATE TABLE IF NOT EXISTS %s 
+		`CREATE TABLE IF NOT EXISTS %s
 		(id serial PRIMARY KEY, embedding vector(%d), metadata JSON, content text)
 		`,
 		o.TableName, vectorDims)
-	if _, err := o.DB.Exec(collCreateQuery); err != nil {
-		return nil, err
+	if _, err = o.DB.Exec(collCreateQuery); err != nil {
+		return nil, fmt.Errorf("unable to create collection: %s %w", collCreateQuery, err)
 	}
 
 	// create index
@@ -76,8 +75,8 @@ func NewPGVectorStore(opts ...Options) (store.VectorStore, error) {
 		16,
 		100,
 	)
-	if _, err := o.DB.Exec(idxQuery); err != nil {
-		return nil, err
+	if _, err = o.DB.Exec(idxQuery); err != nil {
+		return nil, fmt.Errorf("unable to create vector index on collection: %w", err)
 	}
 
 	return &Store{
